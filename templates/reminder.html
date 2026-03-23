@@ -31,12 +31,10 @@
         body {
             font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: #ffffff;
-            /* ✅ solid white background */
             min-height: 100vh;
             overflow-x: hidden;
             color: var(--text-main);
         }
-
 
         /* Header Styles */
         .header {
@@ -62,7 +60,6 @@
             width: 260px;
             height: 260px;
             background: radial-gradient(circle, #bbf7d0 0%, transparent 70%);
-            /* light green */
             top: -80px;
             left: -40px;
         }
@@ -71,7 +68,6 @@
             width: 260px;
             height: 260px;
             background: radial-gradient(circle, #a7f3d0 0%, transparent 70%);
-            /* mint */
             bottom: -80px;
             right: -40px;
         }
@@ -158,6 +154,63 @@
             font-weight: 700;
             letter-spacing: 0.08em;
             font-variant-numeric: tabular-nums;
+        }
+
+        /* Caregiver Info Bar */
+        .caregiver-info-bar {
+            background: linear-gradient(135deg, #fef3e8, #fff5f0);
+            border-radius: 20px;
+            padding: 12px 20px;
+            margin: 20px auto 0;
+            max-width: 1200px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+            border: 1px solid #f0e1d2;
+        }
+
+        .caregiver-info-text {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .caregiver-info-text i {
+            font-size: 1.3rem;
+            color: #16a34a;
+        }
+
+        .caregiver-info-text span {
+            font-weight: 600;
+            color: #4b5563;
+        }
+
+        #caregiverEmailDisplay {
+            font-family: monospace;
+            background: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            color: #16a34a;
+            font-weight: 600;
+        }
+
+        .btn-set-email {
+            background: #16a34a;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-set-email:hover {
+            background: #15803d;
+            transform: translateY(-2px);
         }
 
         /* Main Container */
@@ -339,7 +392,6 @@
             font-weight: 700;
             color: #fefefe;
             background: linear-gradient(135deg, #16a34a 0%, #22c55e 50%, #4ade80 100%);
-            /* ✅ green */
             border: none;
             border-radius: 18px;
             cursor: pointer;
@@ -349,11 +401,9 @@
             gap: 0.7rem;
             transition: all 0.25s ease;
             box-shadow: 0 22px 45px rgba(22, 163, 74, 0.55);
-            /* ✅ green glow */
             letter-spacing: 0.08em;
             text-transform: uppercase;
         }
-
 
         .btn-primary:hover {
             transform: translateY(-2px) scale(1.01);
@@ -651,6 +701,26 @@
             transform: translateY(-1px);
         }
 
+        .toast-message {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #2c2a2e;
+            color: white;
+            padding: 12px 28px;
+            border-radius: 60px;
+            font-weight: 600;
+            z-index: 9999;
+            transition: transform 0.3s;
+            backdrop-filter: blur(10px);
+            background: rgba(44, 42, 46, 0.9);
+        }
+
+        .toast-message.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
         @media (max-width: 768px) {
             .title-text h1 {
                 font-size: 1.7rem;
@@ -702,6 +772,20 @@
             </div>
         </div>
     </header>
+
+    <!-- Caregiver Info Bar -->
+    <div class="caregiver-info-bar" style="max-width: 1200px; margin: 20px auto 0; padding: 0 1.3rem;">
+        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; flex-wrap: wrap; gap: 15px;">
+            <div class="caregiver-info-text">
+                <i class="fas fa-envelope" style="font-family: 'Font Awesome 6 Free';"></i>
+                <span>Caregiver Email for Reminders:</span>
+                <span id="caregiverEmailDisplay">Not set</span>
+            </div>
+            <button class="btn-set-email" id="setEmailBtn">
+                <i class="fas fa-edit" style="font-family: 'Font Awesome 6 Free';"></i> Set Email
+            </button>
+        </div>
+    </div>
 
     <!-- Main Container -->
     <div class="container">
@@ -796,6 +880,8 @@
         </div>
     </div>
 
+    <div id="toast" class="toast-message"></div>
+
     <script>
         let medicines = [];
         let notificationGranted = false;
@@ -820,6 +906,68 @@
             { key: 'Sun', index: 0 }
         ];
 
+        // ========== CAREGIVER EMAIL MANAGEMENT ==========
+        function updateCaregiverEmailDisplay() {
+            const savedEmail = localStorage.getItem("caregiverEmail");
+            const emailSpan = document.getElementById("caregiverEmailDisplay");
+            if (savedEmail) {
+                emailSpan.innerHTML = savedEmail;
+                emailSpan.style.color = "#16a34a";
+            } else {
+                emailSpan.innerHTML = "Not set";
+                emailSpan.style.color = "#999";
+            }
+        }
+
+        function setCaregiverEmail(email) {
+            if (email && email.includes('@')) {
+                localStorage.setItem("caregiverEmail", email);
+                updateCaregiverEmailDisplay();
+                showToastMessage(`✅ Caregiver email set to: ${email}`);
+                return true;
+            } else {
+                showToastMessage("❌ Please enter a valid email address");
+                return false;
+            }
+        }
+
+        function sendEmailToCaregiver(status, medicineName) {
+            const email = localStorage.getItem("caregiverEmail");
+            
+            if (!email) {
+                console.log("No caregiver email set");
+                showToastMessage("⚠️ Please set a caregiver email first using the 'Set Email' button");
+                return false;
+            }
+            
+            // Send email using Google Apps Script
+            fetch("https://script.google.com/macros/s/AKfycbw0MGzCZkl77i94leynM74qSN0e7pXeeZf0MLvKSHQ46W69hhbU7Ru4LRtFbOyNBDJQhQ/exec", {
+                method: "POST",
+                mode: "no-cors",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    email: email,
+                    status: status,
+                    medicine: medicineName,
+                    timestamp: new Date().toLocaleString()
+                })
+            });
+            
+            console.log(`Email triggered: ${status} - ${medicineName} to ${email}`);
+            showToastMessage(`📧 Email sent to caregiver about ${medicineName}`);
+            return true;
+        }
+
+        function showToastMessage(msg) {
+            let t = document.getElementById("toast");
+            t.textContent = msg;
+            t.classList.add("show");
+            setTimeout(() => t.classList.remove("show"), 2500);
+        }
+
+        // ========== REMINDER FUNCTIONS ==========
         function renderDayChips() {
             const container = document.getElementById('dayChips');
             container.innerHTML = '';
@@ -887,7 +1035,9 @@
                     takenAt: now.toISOString()
                 };
                 takenEvents.push(takenRecord);
+                // Send email when medicine is taken
                 sendEmailToCaregiver("taken", currentModalMedicine.name);
+                showToastMessage(`✅ Marked ${currentModalMedicine.name} as taken. Email sent to caregiver.`);
             }
             closeModal();
         });
@@ -930,7 +1080,7 @@
 
         function checkReminders(now) {
             const currentMinute = now.getHours() * 60 + now.getMinutes();
-            const todayIndex = now.getDay(); // 0=Sun ... 6=Sat
+            const todayIndex = now.getDay();
 
             medicines.forEach(med => {
                 const activeToday = isMedicineActiveToday(med, todayIndex);
@@ -1106,31 +1256,27 @@
             URL.revokeObjectURL(url);
         });
 
+        // Set Email Button
+        document.getElementById('setEmailBtn').addEventListener('click', () => {
+            const newEmail = prompt("Enter caregiver email address for reminders:", localStorage.getItem("caregiverEmail") || "");
+            if (newEmail !== null) {
+                setCaregiverEmail(newEmail);
+            }
+        });
+
         document.getElementById('everyDayBtn').addEventListener('click', setAllDaysSelected);
 
+        // Load saved email on startup
+        updateCaregiverEmailDisplay();
         setInterval(updateClock, 1000);
         renderDayChips();
         updateClock();
         renderMedicines();
-        function sendEmailToCaregiver(status, medicineName) {
-    const email = localStorage.getItem("careEmail");
-
-    if (!email) {
-        alert("Please add caregiver email first");
-        return;
-    }
-
-    fetch("https://script.google.com/macros/s/AKfycbw0MGzCZkl77i94leynM74qSN0e7pXeeZf0MLvKSHQ46W69hhbU7Ru4LRtFbOyNBDJQhQ/exec", {
-        method: "POST",
-        body: JSON.stringify({
-            email: email,
-            status: status,
-            medicine: medicineName
-        })
-    });
-
-    console.log("Email triggered");
-}
+        
+        // Check if there's a saved email from caregiver.html
+        window.addEventListener('load', () => {
+            updateCaregiverEmailDisplay();
+        });
     </script>
 </body>
 

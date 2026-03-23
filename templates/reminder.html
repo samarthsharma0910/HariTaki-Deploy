@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medicine Reminder - Premium App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-gradient-start: #fff5f7;
+            --bg-gradient-end: #e0f2fe;
+            --primary: #f97373;
+            --primary-dark: #f97373;
+            --primary-soft: #fee2e2;
+            --accent: #a855f7;
+            --accent-soft: #f3e8ff;
+            --text-main: #1f2937;
+            --text-soft: #6b7280;
+            --card-bg: #ffffff;
+            --card-border: rgba(148, 163, 184, 0.25);
+            --shadow-soft: 0 18px 45px rgba(15, 23, 42, 0.15);
+            --radius-xl: 26px;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #ffffff;
+            /* ✅ solid white background */
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: var(--text-main);
+        }
+
+
+        /* Header Styles */
+        .header {
+            background: linear-gradient(135deg, #16a34a 0%, #22c55e 40%, #4ade80 100%);
+            box-shadow: 0 22px 60px rgba(22, 163, 74, 0.45);
+            position: relative;
+            overflow: hidden;
+            border-bottom-left-radius: 32px;
+            border-bottom-right-radius: 32px;
+        }
+
+        .header::before,
+        .header::after {
+            content: '';
+            position: absolute;
+            border-radius: 999px;
+            filter: blur(40px);
+            opacity: 0.45;
+            pointer-events: none;
+        }
+
+        .header::before {
+            width: 260px;
+            height: 260px;
+            background: radial-gradient(circle, #bbf7d0 0%, transparent 70%);
+            /* light green */
+            top: -80px;
+            left: -40px;
+        }
+
+        .header::after {
+            width: 260px;
+            height: 260px;
+            background: radial-gradient(circle, #a7f3d0 0%, transparent 70%);
+            /* mint */
+            bottom: -80px;
+            right: -40px;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.6rem 1.3rem 1.9rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 1.1rem;
+        }
+
+        .icon-wrapper {
+            background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.9) 0%, rgba(254, 249, 195, 0.5) 45%, rgba(255, 255, 255, 0.15) 100%);
+            backdrop-filter: blur(16px);
+            padding: 0.9rem;
+            border-radius: 22px;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.25);
+            transition: transform 0.35s ease, box-shadow 0.35s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-wrapper:hover {
+            transform: translateY(-3px) scale(1.04) rotate(-3deg);
+            box-shadow: 0 24px 70px rgba(15, 23, 42, 0.35);
+        }
+
+        .icon-wrapper svg {
+            width: 2.2rem;
+            height: 2.2rem;
+            stroke: #22c55e;
+        }
+
+        .title-text h1 {
+            color: #fefcff;
+            font-size: 2.35rem;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            text-shadow: 0 14px 35px rgba(15, 23, 42, 0.55);
+        }
+
+        .title-text p {
+            color: rgba(255, 255, 255, 0.92);
+            font-size: 0.98rem;
+            font-weight: 500;
+            margin-top: 0.35rem;
+        }
+
+        .clock-widget {
+            background: radial-gradient(circle at top left, rgba(240, 253, 244, 0.98) 0%, rgba(255, 255, 255, 0.94) 55%, rgba(255, 255, 255, 0.9) 100%);
+            backdrop-filter: blur(16px);
+            padding: 0.9rem 1.4rem;
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.25);
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+        }
+
+        .clock-widget svg {
+            width: 1.7rem;
+            height: 1.7rem;
+            stroke: #16a34a;
+        }
+
+        .clock-time {
+            color: #111827;
+            font-size: 1.9rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2.2rem 1.3rem 2.5rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.8rem;
+        }
+
+        @media (min-width: 1024px) {
+            .grid {
+                grid-template-columns: minmax(0, 380px) minmax(0, 1fr);
+            }
+        }
+
+        /* Card Styles */
+        .card {
+            background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.95) 60%, rgba(255, 255, 255, 0.92) 100%);
+            border-radius: var(--radius-xl);
+            padding: 1.9rem 1.7rem;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid var(--card-border);
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.25);
+            transform: translateY(-3px);
+            border-color: rgba(251, 113, 133, 0.4);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 1.35rem;
+        }
+
+        .card-header svg {
+            width: 1.7rem;
+            height: 1.7rem;
+            stroke: #f97373;
+        }
+
+        .card-header h2 {
+            color: #0f172a;
+            font-size: 1.45rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .card-header span {
+            background: linear-gradient(135deg, #f97373, #fb7185);
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        /* Alert */
+        .alert {
+            background: linear-gradient(135deg, rgba(254, 243, 199, 0.95) 0%, rgba(254, 215, 170, 0.9) 100%);
+            border: 1px solid rgba(251, 191, 36, 0.9);
+            border-radius: 16px;
+            padding: 0.85rem 0.9rem;
+            margin-bottom: 1.3rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.7rem;
+        }
+
+        .alert svg {
+            width: 1.1rem;
+            height: 1.1rem;
+            stroke: #b45309;
+            margin-top: 2px;
+        }
+
+        .alert p {
+            color: #92400e;
+            font-size: 0.86rem;
+            font-weight: 600;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 1.1rem;
+        }
+
+        .form-group label {
+            display: block;
+            color: #4b5563;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: 0.45rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            font-size: 0.98rem;
+            font-weight: 500;
+            border: 1px solid rgba(148, 163, 184, 0.7);
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.9);
+            transition: all 0.22s ease;
+            color: var(--text-main);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #f97373;
+            background: #ffffff;
+            box-shadow: 0 0 0 1px rgba(248, 113, 113, 0.4), 0 14px 30px rgba(15, 23, 42, 0.16);
+            transform: translateY(-1px);
+        }
+
+        .form-control::placeholder {
+            color: #9ca3af;
+        }
+
+        /* Day selector */
+        .days-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.45rem;
+            margin-top: 0.3rem;
+        }
+
+        .day-chip {
+            padding: 0.35rem 0.75rem;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.7);
+            background: rgba(248, 250, 252, 0.9);
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #4b5563;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .day-chip.active {
+            background: linear-gradient(135deg, #fb7185, #f97373);
+            border-color: transparent;
+            color: #fefefe;
+            box-shadow: 0 10px 24px rgba(248, 113, 113, 0.45);
+        }
+
+        .btn-everyday {
+            margin-top: 0.6rem;
+            padding: 0.52rem 0.9rem;
+            border-radius: 999px;
+            border: 1px dashed rgba(248, 113, 113, 0.7);
+            background: rgba(254, 242, 242, 0.9);
+            color: #b91c1c;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-everyday:hover {
+            background: #fee2e2;
+        }
+
+        /* Button */
+        .btn-primary {
+            width: 100%;
+            margin-top: 0.4rem;
+            padding: 0.95rem;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #fefefe;
+            background: linear-gradient(135deg, #16a34a 0%, #22c55e 50%, #4ade80 100%);
+            /* ✅ green */
+            border: none;
+            border-radius: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.7rem;
+            transition: all 0.25s ease;
+            box-shadow: 0 22px 45px rgba(22, 163, 74, 0.55);
+            /* ✅ green glow */
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+
+        .btn-primary:hover {
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 26px 55px rgba(248, 113, 113, 0.65);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0) scale(0.99);
+            box-shadow: 0 14px 30px rgba(248, 113, 113, 0.5);
+        }
+
+        .btn-primary svg {
+            width: 1.2rem;
+            height: 1.2rem;
+            stroke: #fefefe;
+        }
+
+        /* Medicine List */
+        .medicine-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .medicine-item {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(254, 242, 242, 0.96) 50%, rgba(239, 246, 255, 0.96) 100%);
+            border: 1px solid rgba(248, 250, 252, 0.9);
+            border-radius: 20px;
+            padding: 1.05rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+            transition: all 0.23s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .medicine-item::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -20%;
+            width: 60%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(248, 113, 113, 0.18) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            transform: translateX(-10px);
+        }
+
+        .medicine-item:hover::before {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .medicine-item:hover {
+            border-color: rgba(248, 113, 113, 0.4);
+            box-shadow: 0 16px 35px rgba(15, 23, 42, 0.18);
+            transform: translateY(-3px);
+        }
+
+        .medicine-icon {
+            background: radial-gradient(circle at top left, #fee2e2 0%, #fef3c7 35%, #e0f2fe 100%);
+            border: 1px solid rgba(248, 113, 113, 0.5);
+            padding: 0.7rem;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.25s ease;
+        }
+
+        .medicine-item:hover .medicine-icon {
+            transform: scale(1.06) rotate(-5deg);
+            box-shadow: 0 14px 32px rgba(248, 113, 113, 0.4);
+        }
+
+        .medicine-icon svg {
+            width: 1.6rem;
+            height: 1.6rem;
+            stroke: #fb7185;
+        }
+
+        .medicine-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .medicine-info h3 {
+            color: #0f172a;
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin-bottom: 0.15rem;
+            letter-spacing: -0.02em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .medicine-info p {
+            color: #6b7280;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .medicine-days {
+            font-size: 0.78rem;
+            color: #9f1239;
+            margin-top: 0.22rem;
+            background: rgba(254, 226, 226, 0.9);
+            padding: 0.15rem 0.55rem;
+            border-radius: 999px;
+            display: inline-block;
+        }
+
+        .medicine-time {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.2rem;
+            color: #374151;
+            font-size: 0.98rem;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            flex-shrink: 0;
+        }
+
+        .medicine-time-row {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .medicine-time svg {
+            width: 1.1rem;
+            height: 1.1rem;
+            stroke: #fb7185;
+        }
+
+        .btn-delete {
+            background: linear-gradient(135deg, #fee2e2, #fecaca);
+            border: 1px solid rgba(248, 113, 113, 0.7);
+            color: #b91c1c;
+            padding: 0.45rem;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: all 0.22s ease;
+            opacity: 0;
+            transform: scale(0.85);
+            flex-shrink: 0;
+        }
+
+        .medicine-item:hover .btn-delete {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .btn-delete:hover {
+            background: linear-gradient(135deg, #fecaca, #fca5a5);
+            box-shadow: 0 12px 26px rgba(248, 113, 113, 0.5);
+        }
+
+        .btn-delete svg {
+            width: 1.1rem;
+            height: 1.1rem;
+            stroke: currentColor;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3.4rem 2rem;
+        }
+
+        .empty-state svg {
+            width: 4.2rem;
+            height: 4.2rem;
+            stroke: #e5e7eb;
+            margin: 0 auto 1.2rem;
+        }
+
+        .empty-state h3 {
+            color: #6b7280;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .empty-state p {
+            color: #9ca3af;
+            font-size: 0.95rem;
+            margin-top: 0.3rem;
+        }
+
+        /* Modal */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+        }
+
+        .modal {
+            background: linear-gradient(135deg, #ffffff 0%, #fef2f2 45%, #f5f3ff 100%);
+            border-radius: 22px;
+            padding: 1.5rem 1.4rem;
+            max-width: 380px;
+            width: 90%;
+            box-shadow: 0 28px 70px rgba(15, 23, 42, 0.45);
+            border: 1px solid rgba(248, 113, 113, 0.4);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 0.7rem;
+        }
+
+        .modal-header h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .modal-body {
+            font-size: 0.95rem;
+            color: #4b5563;
+            margin-bottom: 0.9rem;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.6rem;
+            margin-top: 0.4rem;
+        }
+
+        .btn-secondary {
+            padding: 0.45rem 0.9rem;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.7);
+            background: #f9fafb;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #374151;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .btn-success {
+            padding: 0.45rem 0.95rem;
+            border-radius: 999px;
+            border: none;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #fefefe;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 14px 30px rgba(22, 163, 74, 0.5);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 18px 36px rgba(22, 163, 74, 0.6);
+        }
+
+        /* Export CSV button */
+        .btn-export {
+            margin-top: 1rem;
+            padding: 0.65rem 1rem;
+            border-radius: 999px;
+            border: 1px solid rgba(59, 130, 246, 0.8);
+            background: linear-gradient(135deg, #eff6ff, #e0f2fe);
+            color: #1d4ed8;
+            font-size: 0.86rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-export:hover {
+            box-shadow: 0 10px 26px rgba(37, 99, 235, 0.4);
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 768px) {
+            .title-text h1 {
+                font-size: 1.7rem;
+            }
+
+            .clock-time {
+                font-size: 1.5rem;
+            }
+
+            .header-content {
+                padding: 1.2rem 1.1rem 1.6rem;
+            }
+
+            .container {
+                padding: 1.8rem 1.1rem 2.1rem;
+            }
+
+            .card {
+                padding: 1.6rem 1.4rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="header-title">
+                <div class="icon-wrapper">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
+                    </svg>
+                </div>
+                <div class="title-text">
+                    <h1>Medicine Reminder</h1>
+                    <p id="currentDate"></p>
+                </div>
+            </div>
+            <div class="clock-widget">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div class="clock-time" id="clock"></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+        <div class="grid">
+            <!-- Add Medicine Form -->
+            <div class="card">
+                <div class="card-header">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                    <h2>Add Medicine</h2>
+                </div>
+
+                <div id="notificationAlert" class="alert" style="display: none;">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                    </svg>
+                    <p>Enable notifications to receive reminders</p>
+                </div>
+
+                <form id="medicineForm">
+                    <div class="form-group">
+                        <label for="medicineName">Medicine Name</label>
+                        <input type="text" id="medicineName" class="form-control" placeholder="e.g., Aspirin" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="dosage">Dosage</label>
+                        <input type="text" id="dosage" class="form-control" placeholder="e.g., 500mg" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reminderTime">Reminder Time</label>
+                        <input type="time" id="reminderTime" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Days of Week</label>
+                        <div id="dayChips" class="days-container"></div>
+                        <button type="button" id="everyDayBtn" class="btn-everyday">
+                            Set for all days
+                        </button>
+                    </div>
+
+                    <button type="submit" class="btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                        </svg>
+                        Add Reminder
+                    </button>
+                </form>
+            </div>
+
+            <!-- Medicine List -->
+            <div class="card">
+                <div class="card-header">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+                    </svg>
+                    <h2>Your Reminders</h2>
+                    <span style="font-weight: 700; font-size: 1.1rem;">(<span id="reminderCount">0</span>)</span>
+                </div>
+                <div id="medicineList" class="medicine-list"></div>
+
+                <button id="exportCsvBtn" type="button" class="btn-export">
+                    ⬇ Export Taken Medicines CSV
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popup Modal -->
+    <div id="modalBackdrop" class="modal-backdrop">
+        <div class="modal" id="modal">
+            <div class="modal-header">
+                <svg id="modalIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                    stroke="currentColor" style="width:1.5rem;height:1.5rem;color:#fb7185;">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <h3 id="modalTitle">Reminder</h3>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+            <div class="modal-footer" id="modalFooter">
+                <button class="btn-secondary" id="modalCloseBtn">Close</button>
+                <button class="btn-success" id="modalConfirmBtn" style="display:none;">Mark as Taken</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let medicines = [];
+        let notificationGranted = false;
+        let takenEvents = [];
+
+        const modalBackdrop = document.getElementById('modalBackdrop');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalBody = document.getElementById('modalBody');
+        const modalConfirmBtn = document.getElementById('modalConfirmBtn');
+        const modalCloseBtn = document.getElementById('modalCloseBtn');
+        const modalIcon = document.getElementById('modalIcon');
+
+        let currentModalMedicine = null;
+
+        const weekDays = [
+            { key: 'Mon', index: 1 },
+            { key: 'Tue', index: 2 },
+            { key: 'Wed', index: 3 },
+            { key: 'Thu', index: 4 },
+            { key: 'Fri', index: 5 },
+            { key: 'Sat', index: 6 },
+            { key: 'Sun', index: 0 }
+        ];
+
+        function renderDayChips() {
+            const container = document.getElementById('dayChips');
+            container.innerHTML = '';
+            weekDays.forEach(d => {
+                const span = document.createElement('span');
+                span.className = 'day-chip';
+                span.textContent = d.key;
+                span.dataset.dayKey = d.key;
+                span.addEventListener('click', () => {
+                    span.classList.toggle('active');
+                });
+                container.appendChild(span);
+            });
+        }
+
+        function setAllDaysSelected() {
+            document.querySelectorAll('.day-chip').forEach(chip => {
+                chip.classList.add('active');
+            });
+        }
+
+        function getSelectedDays() {
+            const selected = [];
+            document.querySelectorAll('.day-chip.active').forEach(chip => {
+                selected.push(chip.dataset.dayKey);
+            });
+            return selected;
+        }
+
+        function openModal({ title, body, showConfirm = false, type = 'info', med = null }) {
+            modalTitle.textContent = title;
+            modalBody.textContent = body;
+            currentModalMedicine = med;
+
+            if (type === 'added') {
+                modalIcon.style.color = '#fb7185';
+            } else if (type === 'alert') {
+                modalIcon.style.color = '#b91c1c';
+            } else {
+                modalIcon.style.color = '#fb7185';
+            }
+
+            modalConfirmBtn.style.display = showConfirm ? 'inline-flex' : 'none';
+            modalBackdrop.style.display = 'flex';
+        }
+
+        function closeModal() {
+            modalBackdrop.style.display = 'none';
+            currentModalMedicine = null;
+        }
+
+        modalCloseBtn.addEventListener('click', closeModal);
+        modalBackdrop.addEventListener('click', (e) => {
+            if (e.target === modalBackdrop) closeModal();
+        });
+
+        modalConfirmBtn.addEventListener('click', () => {
+            if (currentModalMedicine) {
+                const now = new Date();
+                const takenRecord = {
+                    id: currentModalMedicine.id,
+                    name: currentModalMedicine.name,
+                    dosage: currentModalMedicine.dosage,
+                    scheduledTime: currentModalMedicine.time,
+                    takenAt: now.toISOString()
+                };
+                takenEvents.push(takenRecord);
+                sendEmailToCaregiver("taken", currentModalMedicine.name);
+            }
+            closeModal();
+        });
+
+        if ('Notification' in window) {
+            if (Notification.permission === 'granted') {
+                notificationGranted = true;
+            } else if (Notification.permission !== 'denied') {
+                Notification.requestPermission().then(permission => {
+                    notificationGranted = permission === 'granted';
+                    updateNotificationAlert();
+                });
+            }
+            updateNotificationAlert();
+        }
+
+        function updateNotificationAlert() {
+            const alert = document.getElementById('notificationAlert');
+            alert.style.display = notificationGranted ? 'none' : 'flex';
+        }
+
+        function updateClock() {
+            const now = new Date();
+            const time = now.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true
+            });
+            const date = now.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            document.getElementById('clock').textContent = time;
+            document.getElementById('currentDate').textContent = date;
+            checkReminders(now);
+        }
+
+        function checkReminders(now) {
+            const currentMinute = now.getHours() * 60 + now.getMinutes();
+            const todayIndex = now.getDay(); // 0=Sun ... 6=Sat
+
+            medicines.forEach(med => {
+                const activeToday = isMedicineActiveToday(med, todayIndex);
+                if (!activeToday) return;
+
+                if (!med.notified) {
+                    const [hours, minutes] = med.time.split(':');
+                    const reminderMinute = parseInt(hours) * 60 + parseInt(minutes);
+
+                    if (currentMinute === reminderMinute) {
+                        openModal({
+                            title: 'Time to take your medicine',
+                            body: `Take ${med.name} - ${med.dosage}`,
+                            showConfirm: true,
+                            type: 'alert',
+                            med
+                        });
+
+                        if (notificationGranted) {
+                            new Notification('💊 Medicine Reminder', {
+                                body: `Time to take ${med.name} - ${med.dosage}`,
+                                requireInteraction: true,
+                                tag: `medicine-${med.id}`
+                            });
+                        }
+
+                        med.notified = true;
+                        setTimeout(() => {
+                            med.notified = false;
+                        }, 60000);
+                    }
+                }
+            });
+        }
+
+        function isMedicineActiveToday(med, todayIndex) {
+            if (!med.days || med.days.length === 0) return false;
+            const todayKey = weekDays.find(d => d.index === todayIndex)?.key;
+            return med.days.includes(todayKey);
+        }
+
+        document.getElementById('medicineForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const name = document.getElementById('medicineName').value;
+            const dosage = document.getElementById('dosage').value;
+            const time = document.getElementById('reminderTime').value;
+
+            const daysSelected = getSelectedDays();
+            if (daysSelected.length === 0) {
+                openModal({
+                    title: 'Select days',
+                    body: 'Please select at least one day for this reminder.',
+                    showConfirm: false,
+                    type: 'info'
+                });
+                return;
+            }
+
+            const medicine = {
+                id: Date.now(),
+                name,
+                dosage,
+                time,
+                notified: false,
+                days: daysSelected
+            };
+
+            medicines.push(medicine);
+            renderMedicines();
+
+            openModal({
+                title: 'Reminder Added',
+                body: `Reminder set for ${medicine.name} (${medicine.dosage}) at ${formatTime(medicine.time)} on ${medicine.days.join(', ')}.`,
+                showConfirm: false,
+                type: 'added'
+            });
+
+            this.reset();
+            renderDayChips();
+        });
+
+        function deleteMedicine(id) {
+            medicines = medicines.filter(med => med.id !== id);
+            renderMedicines();
+        }
+
+        function renderMedicines() {
+            const list = document.getElementById('medicineList');
+            document.getElementById('reminderCount').textContent = medicines.length;
+
+            if (medicines.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
+                        </svg>
+                        <h3>No reminders yet</h3>
+                        <p>Add your first medicine reminder to get started</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const sorted = medicines.slice().sort((a, b) => a.time.localeCompare(b.time));
+            list.innerHTML = sorted.map(med => `
+                <div class="medicine-item">
+                    <div class="medicine-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
+                        </svg>
+                    </div>
+                    <div class="medicine-info">
+                        <h3>${med.name}</h3>
+                        <p>${med.dosage}</p>
+                        <div class="medicine-days">${med.days.join(', ')}</div>
+                    </div>
+                    <div class="medicine-time">
+                        <div class="medicine-time-row">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            ${formatTime(med.time)}
+                        </div>
+                    </div>
+                    <button class="btn-delete" onclick="deleteMedicine(${med.id})">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                        </svg>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function formatTime(time) {
+            const date = new Date(`2000-01-01T${time}`);
+            return date.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            });
+        }
+
+        document.getElementById('exportCsvBtn').addEventListener('click', () => {
+            if (takenEvents.length === 0) {
+                openModal({
+                    title: 'No data yet',
+                    body: 'You have not marked any medicine as taken yet.',
+                    showConfirm: false,
+                    type: 'info'
+                });
+                return;
+            }
+
+            const header = ['Id', 'Name', 'Dosage', 'Scheduled Time', 'Taken At'];
+            const rows = takenEvents.map(ev => [
+                ev.id,
+                `"${ev.name.replace(/"/g, '""')}"`,
+                `"${ev.dosage.replace(/"/g, '""')}"`,
+                ev.scheduledTime,
+                ev.takenAt
+            ]);
+
+            const csvContent = [header.join(','), ...rows.map(r => r.join(','))].join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'medicine_taken_log.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+
+        document.getElementById('everyDayBtn').addEventListener('click', setAllDaysSelected);
+
+        setInterval(updateClock, 1000);
+        renderDayChips();
+        updateClock();
+        renderMedicines();
+        function sendEmailToCaregiver(status, medicineName) {
+    const email = localStorage.getItem("careEmail");
+
+    if (!email) {
+        alert("Please add caregiver email first");
+        return;
+    }
+
+    fetch("https://script.google.com/macros/s/AKfycbw0MGzCZkl77i94leynM74qSN0e7pXeeZf0MLvKSHQ46W69hhbU7Ru4LRtFbOyNBDJQhQ/exec", {
+        method: "POST",
+        body: JSON.stringify({
+            email: email,
+            status: status,
+            medicine: medicineName
+        })
+    });
+
+    console.log("Email triggered");
+}
+    </script>
+</body>
+
+</html>

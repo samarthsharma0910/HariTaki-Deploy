@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HARITAKI| Find Best Medical Facilities</title>
+    <link rel="stylesheet" href="static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<style>
+    .show-toggle-wrapper {
+        margin-top: 1.5rem;
+        text-align: center;
+    }
+
+    .show-toggle-wrapper .btn-secondary {
+        min-width: 200px;
+    }
+    .topbar-profile-inline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.topbar-user {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #fff; /* match your topbar */
+}
+
+.topbar-logout-btn {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid #fff;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: 0.2s;
+}
+
+.topbar-logout-btn:hover {
+  background: #fff;
+  color: #2563eb; /* or your primary color */
+}
+.topbar-profile {
+  position: relative;
+  display: inline-block;
+}
+
+.profile-caret {
+  margin-left: 6px;
+  font-size: 0.8rem;
+}
+
+.profile-dropdown {
+  position: absolute;
+  right: 0;
+  top: 110%;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  padding: 6px 0;
+  min-width: 120px;
+  display: none;
+  z-index: 20;
+}
+
+.profile-dropdown.open {
+  display: block;
+}
+
+.profile-dropdown-item {
+  width: 100%;
+  text-align: left;
+  padding: 8px 16px;
+  background: transparent;
+  border: none;
+  font-size: 0.9rem;
+  cursor: pointer;
+  font-family: inherit;
+  color: #111827;
+}
+
+.profile-dropdown-item:hover {
+  background: #f3f4f6;
+}
+
+
+</style>
+
+<body>
+    <!-- Top bar with hamburger -->
+
+    <!-- Top bar with hamburger -->
+    <div class="topbar">
+        <div id="menuBackdrop" class="menu-backdrop"></div>
+
+        <button id="menuToggle" class="menu-toggle">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <div class="topbar-title">
+            <i class="fas fa-hospital-alt"></i>
+            <span>HARITAKI</span>
+        </div>
+
+        <!-- This container will be controlled by JS -->
+        <div id="authArea">
+            <!-- Default: show Login -->
+            <a href="templates/login.html" class="topbar-login-btn" id="loginLink">
+                <i class="fas fa-user-circle"></i>
+                <span>Login</span>
+            </a>
+        </div>
+    </div>
+
+
+
+
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-logo">
+                <i class="fas fa-hospital-alt"></i>
+                <span>HARITAKI</span>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="templates/reminder.html">
+                        <i class="fas fa-pills"></i>
+                        <span>Medicine Reminder</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="https://verifier-virid.vercel.app/">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Medicine Verifier</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="templates/expiry.html">
+                        <i class="fas fa-hourglass-half"></i>
+                        <span>Expiry Tracker</span>
+                    </a>
+                </li>
+
+            </ul>
+
+            <div class="sidebar-bottom">
+                <a href="templates/login.html" class="logout-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main content -->
+        <div class="main-content">
+            <!-- Header Section -->
+            <header>
+                <div class="container">
+                    <div class="header-content">
+                        <div class="logo">
+                            <i class="fas fa-hospital-alt"></i>
+                            <h1>HARITAKI</h1>
+                        </div>
+                        <p class="tagline">Find the best medical facilities</p><br>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Search Section -->
+            <section class="search-section">
+                <div class="container">
+                    <div class="search-container">
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="hospitalSearch"
+                                placeholder="Search hospitals by name, city, or specialty...">
+                        </div>
+                        <button id="clearSearch" class="btn-secondary">
+                            <i class="fas fa-times"></i> Clear
+                        </button>
+                    </div>
+
+                    <div class="filters">
+                        <div class="filter-group">
+                            <label for="cityFilter">
+                                <i class="fas fa-city"></i> Filter by City:
+                            </label>
+                            <select id="cityFilter">
+                                <option value="all">All Cities</option>
+                                <!-- Cities populated by JS -->
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="specialtyFilter">
+                                <i class="fas fa-stethoscope"></i> Filter by Specialty:
+                            </label>
+                            <select id="specialtyFilter">
+                                <option value="all">All Specialties</option>
+                                <!-- Specialties populated by JS -->
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Main Content -->
+            <main class="container">
+                <!-- Statistics -->
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <i class="fas fa-hospital"></i>
+                        <h3 id="totalHospitals">0</h3>
+                        <p>Total Hospitals</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-procedures"></i>
+                        <h3 id="totalBeds">0</h3>
+                        <p>Total Beds</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-bed"></i>
+                        <h3 id="totalICU">0</h3>
+                        <p>ICU Seats</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-shield-alt"></i>
+                        <h3 id="ayushmanCount">0</h3>
+                        <p>Ayushman Enabled</p>
+                    </div>
+                </div>
+
+                <!-- Results Section -->
+                <div class="results-container">
+                    <h2>
+                        <i class="fas fa-list-alt"></i> Hospital Results
+                        <span id="resultCount">(0 found)</span>
+                    </h2>
+
+                    <div class="view-toggle">
+                        <button id="gridViewBtn" class="view-btn active">
+                            <i class="fas fa-th-large"></i> Grid View
+                        </button>
+                        <button id="listViewBtn" class="view-btn">
+                            <i class="fas fa-list"></i> List View
+                        </button>
+                    </div>
+
+                    <div id="hospitalResults" class="hospital-grid">
+                        <!-- Hospital cards populated by JS -->
+                        <div class="loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Loading hospitals data...</p>
+                        </div>
+                    </div>
+
+                    <div class="show-toggle-wrapper">
+                        <button id="showMoreBtn" class="btn-secondary">Show more hospitals</button>
+                        <button id="showLessBtn" class="btn-secondary" style="display:none;">Show less
+                            hospitals</button>
+                    </div>
+
+                </div>
+
+                <!-- Hospital Detail Modal -->
+                <div id="hospitalModal" class="modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2 id="modalHospitalName">Hospital Name</h2>
+                            <span class="close-modal">&times;</span>
+                        </div>
+                        <div class="modal-body">
+                            <div class="modal-columns">
+                                <div class="modal-left">
+                                    <div class="modal-info">
+                                        <div class="info-row">
+                                            <i class="fas fa-city"></i>
+                                            <div>
+                                                <h4>City</h4>
+                                                <p id="modalCity">-</p>
+                                            </div>
+                                        </div>
+                                        <div class="info-row">
+                                            <i class="fas fa-procedures"></i>
+                                            <div>
+                                                <h4>Bed Capacity</h4>
+                                                <p id="modalBeds">-</p>
+                                            </div>
+                                        </div>
+                                        <div class="info-row">
+                                            <i class="fas fa-bed"></i>
+                                            <div>
+                                                <h4>ICU Seats</h4>
+                                                <p id="modalICU">-</p>
+                                            </div>
+                                        </div>
+                                        <div class="info-row">
+                                            <i class="fas fa-shield-alt"></i>
+                                            <div>
+                                                <h4>Ayushman Enabled</h4>
+                                                <p id="modalAyushman">-</p>
+                                            </div>
+                                        </div>
+                                        <div class="info-row">
+                                            <i class="fas fa-star"></i>
+                                            <div>
+                                                <h4>Rating</h4>
+                                                <p id="modalRating">-</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="contact-info">
+                                        <h3><i class="fas fa-phone-alt"></i> Contact Information</h3>
+                                        <p id="modalContact">-</p>
+                                        <p id="modalAddress">-</p>
+                                    </div>
+                                </div>
+
+                                <div class="modal-right">
+                                    <div class="facilities-section">
+                                        <h3><i class="fas fa-clipboard-list"></i> Facilities & Specialties</h3>
+                                        <div id="modalFacilities" class="facilities-list">
+                                            <!-- Facilities populated by JS -->
+                                        </div>
+                                    </div>
+
+                                    <div class="actions">
+                                        <h3><i class="fas fa-map-marked-alt"></i> Get Directions</h3>
+                                        <p>Get directions to this hospital via Google Maps</p>
+                                        <a id="directionsBtn" class="btn-primary" target="_blank">
+                                            <i class="fas fa-directions"></i> Open in Google Maps
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feedback Button (Floating) -->
+                <button id="feedbackBtn" class="feedback-btn">
+                    <i class="fas fa-comment-medical"></i>
+                    <span>Feedback</span>
+                </button>
+
+                <!-- Feedback Modal -->
+                <div id="feedbackModal" class="modal">
+                    <div class="modal-content feedback-content">
+                        <div class="modal-header">
+                            <h2><i class="fas fa-comment-medical"></i> Share Your Feedback</h2>
+                            <span class="close-feedback-modal">&times;</span>
+                        </div>
+                        <div class="modal-body">
+                            <form id="feedbackForm">
+                                <div class="form-group">
+                                    <label for="feedbackName">Your Name (Optional)</label>
+                                    <input type="text" id="feedbackName" placeholder="Enter your name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="feedbackEmail">Email (Optional)</label>
+                                    <input type="email" id="feedbackEmail" placeholder="Enter your email">
+                                </div>
+                                <div class="form-group">
+                                    <label for="feedbackHospital">Hospital (Optional)</label>
+                                    <select id="feedbackHospital">
+                                        <option value="">Select a hospital</option>
+                                        <!-- Hospitals populated by JS -->
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="feedbackRating">Rating</label>
+                                    <div class="rating-stars">
+                                        <i class="far fa-star" data-rating="1"></i>
+                                        <i class="far fa-star" data-rating="2"></i>
+                                        <i class="far fa-star" data-rating="3"></i>
+                                        <i class="far fa-star" data-rating="4"></i>
+                                        <i class="far fa-star" data-rating="5"></i>
+                                    </div>
+                                    <input type="hidden" id="feedbackRating" value="0">
+                                </div>
+                                <div class="form-group">
+                                    <label for="feedbackMessage">Your Feedback</label>
+                                    <textarea id="feedbackMessage" rows="5"
+                                        placeholder="Share your experience or suggestions..." required></textarea>
+                                </div>
+                                <button type="submit" class="btn-primary">
+                                    <i class="fas fa-paper-plane"></i> Submit Feedback
+                                </button>
+                            </form>
+                            <div id="feedbackThankYou" class="thank-you-message">
+                                <i class="fas fa-check-circle"></i>
+                                <h3>Thank You for Your Feedback!</h3>
+                                <p>Your feedback has been submitted successfully. We appreciate your input.</p>
+                                <button id="newFeedbackBtn" class="btn-secondary">Submit Another Feedback</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Footer -->
+            <footer>
+                <div class="container">
+                    <div class="footer-content">
+                        <div class="footer-logo">
+                            <i class="fas fa-hospital-alt"></i>
+                            <h3>Hospital Search Portal</h3>
+                            <p>Your trusted source for hospital information</p>
+                        </div>
+                        <div class="footer-links">
+                            <h4>Quick Links</h4>
+                            <a href="#"><i class="fas fa-search"></i> Search Hospitals</a>
+                            <a href="https://haritaki-about-us.vercel.app/"><i class="fas fa-info-circle"></i> About Us</a>
+                            <a href="#"><i class="fas fa-question-circle"></i> FAQ</a>
+                            <a href="#"><i class="fas fa-envelope"></i> Contact</a>
+                        </div>
+                        <div class="footer-contact">
+                            <h4>Contact Info</h4>
+                            <p><i class="fas fa-phone"></i> +91-9876543210</p>
+                            <p><i class="fas fa-envelope"></i> info@hospitalsearch.com</p>
+                            <p><i class="fas fa-map-marker-alt"></i> Delhi, India</p>
+                        </div>
+                    </div>
+                    <div class="footer-bottom">
+                        <p>&copy; 2023 Hospital Search Portal. All rights reserved.</p>
+                        <p>This is a demonstration website for hospital information search.</p>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    </div>
+    <!-- Chatbot Widget -->
+    <!-- Chatbot Mini Button -->
+    <div id="chatbot-mini">Chat with AI</div>
+
+    <!-- Fullscreen Chatbot -->
+    <div id="chatbot-full">
+        <div class="chatbot-header">
+            <span>Dr. HealthAI</span>
+            <button id="chatbot-close">✕</button>
+        </div>
+
+        <iframe src="https://haritaki-chatbot.netlify.app/" allow="microphone; camera"></iframe>
+    </div>
+
+
+
+
+
+
+
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script src="static/script.js"></script>
+    <script type="module" src="static/auth-state.js"></script>
+
+
+    <!-- Sidebar toggle helper (optional if not already in script.js) -->
+
+
+</body>
+
+
+</html>
+
+
+

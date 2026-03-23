@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dr. HealthAI - Authentication</title>
+    
+    <!-- Firebase SDK v9 -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import {
+            getAuth,
+            signInWithPopup,
+            GoogleAuthProvider,
+            signInWithEmailAndPassword,
+            createUserWithEmailAndPassword,
+            sendPasswordResetEmail
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        // 🔥 Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyAA6YDh0NRgZGLisfkFDjrBMH4J7ifogHI",
+            authDomain: "healthai-31286.firebaseapp.com",
+            projectId: "healthai-31286",
+            storageBucket: "healthai-31286.firebasestorage.app",
+            messagingSenderId: "1087922261314",
+            appId: "1:1087922261314:web:78cb5ac563609094b18cdb",
+            measurementId: "G-XYE0JK0RC4"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // Make available globally
+        window.firebaseAuth = auth;
+        window.GoogleAuthProvider = GoogleAuthProvider;
+        window.signInWithPopup = signInWithPopup;
+        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+        window.sendPasswordResetEmail = sendPasswordResetEmail;
+
+        console.log("✅ Firebase initialized successfully");
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f4f4e3 0%, #2563eb 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 30px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            width: 100%;
+            max-width: 1000px;
+            display: flex;
+            min-height: 600px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.25);
+        }
+
+        .left-panel {
+            background: white;
+            padding: 60px 50px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .form-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 40px;
+        }
+
+        .form-toggle {
+            display: none;
+        }
+
+        .form-container {
+            display: block;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 16px 50px 16px 20px;
+            border: none;
+            background: #f5f7fa;
+            border-radius: 12px;
+            font-size: 15px;
+            font-family: 'Poppins', sans-serif;
+            color: #333;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .input-group input::placeholder {
+            color: #9ca3af;
+        }
+
+        .input-group input:focus {
+            background: #eef2f7;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .input-group input:hover {
+            background: #eef2f7;
+        }
+
+        .input-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 18px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+            font-family: 'Poppins', sans-serif;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(59, 130, 246, 0.4);
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        }
+
+        .submit-btn:active:not(:disabled) {
+            transform: translateY(-1px);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 30px 0;
+            color: #9ca3af;
+            font-size: 14px;
+            font-weight: 400;
+        }
+
+        .google-btn {
+            width: 100%;
+            padding: 14px;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: all 0.3s;
+            color: #374151;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .google-btn:hover:not(:disabled) {
+            border-color: #3b82f6;
+            background: #f0f9ff;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.15);
+        }
+
+        .google-btn:active:not(:disabled) {
+            transform: translateY(-1px);
+        }
+
+        .google-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .google-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        .right-panel {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+            padding: 60px 50px;
+            position: relative;
+        }
+
+        .welcome-title {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .welcome-text {
+            font-size: 16px;
+            font-weight: 300;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            opacity: 0.95;
+        }
+
+        .login-btn {
+            padding: 14px 40px;
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .login-btn:hover {
+            background: white;
+            color: #3b82f6;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.3);
+        }
+
+        .login-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .message {
+            padding: 14px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .message.success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
+        .message.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .switch-text {
+            text-align: center;
+            margin-top: 20px;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .switch-text a {
+            color: #3b82f6;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .switch-text a:hover {
+            text-decoration: underline;
+            color: #2563eb;
+            transform: translateX(3px);
+            display: inline-block;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column-reverse;
+                border-radius: 20px;
+            }
+
+            .left-panel, .right-panel {
+                padding: 40px 30px;
+            }
+
+            .form-title {
+                font-size: 28px;
+            }
+
+            .welcome-title {
+                font-size: 32px;
+            }
+
+            .right-panel {
+                min-height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="left-panel">
+            <div id="message" class="message"></div>
+
+            <!-- Registration Form -->
+            <div id="signup-form" class="form-container">
+                <h1 class="form-title">Registration</h1>
+                
+                <form onsubmit="handleSignup(event)">
+                    <div class="input-group">
+                        <input type="text" id="signup-name" placeholder="Username" required>
+                        <span class="input-icon">👤</span>
+                    </div>
+                    
+                    <div class="input-group">
+                        <input type="email" id="signup-email" placeholder="Email" required>
+                        <span class="input-icon">✉️</span>
+                    </div>
+                    
+                    <div class="input-group">
+                        <input type="password" id="signup-password" placeholder="Password" required minlength="6">
+                        <span class="input-icon">🔒</span>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn" id="signupBtn">Register</button>
+                </form>
+
+                <div class="divider">or continue with</div>
+
+                <button class="google-btn" onclick="signInWithGoogle()">
+                    <svg class="google-icon" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    Sign in with Google
+                </button>
+
+                <div class="switch-text">
+                    Already have an account? <a onclick="toggleToLogin()">Log in</a>
+                </div>
+            </div>
+
+            <!-- Login Form -->
+            <div id="login-form" class="form-container" style="display: none;">
+                <h1 class="form-title">Login</h1>
+                
+                <form onsubmit="handleLogin(event)">
+                    <div class="input-group">
+                        <input type="email" id="login-email" placeholder="Email" required>
+                        <span class="input-icon">✉️</span>
+                    </div>
+                    
+                    <div class="input-group">
+                        <input type="password" id="login-password" placeholder="Password" required>
+                        <span class="input-icon">🔒</span>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn" id="loginBtn">Login</button>
+                </form>
+
+                <div class="divider">or continue with</div>
+
+                <button class="google-btn" onclick="signInWithGoogle()">
+                    <svg class="google-icon" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    Sign in with Google
+                </button>
+
+                <div class="switch-text">
+                    Don't have an account? <a onclick="toggleToSignup()">Register</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-panel">
+            <h1 class="welcome-title">WELCOME BACK <BR>IN<BR>Haritaki</h1>
+            <p>You need it ,we get it</p><br>    
+            <p class="welcome-text">Already have an account? Log in to pick up right where you left off.</p>
+            <button class="login-btn" onclick="toggleToLogin()">Login with email</button>
+        </div>
+    </div>
+
+    <script>
+        function toggleToLogin() {
+            document.getElementById('signup-form').style.display = 'none';
+            document.getElementById('login-form').style.display = 'block';
+            document.querySelector('.welcome-title').textContent = 'Hello, Friend!';
+            document.querySelector('.welcome-text').textContent = 'Enter your personal details and start your journey with us.';
+            document.querySelector('.login-btn').textContent = 'Sign up with email';
+            document.querySelector('.login-btn').onclick = toggleToSignup;
+        }
+
+        function toggleToSignup() {
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('signup-form').style.display = 'block';
+            document.querySelector('.welcome-title').textContent = 'Haritaki';
+            document.querySelector('.welcome-text').textContent = 'Already have an account? Log in to pick up right where you left off.';
+            document.querySelector('.login-btn').textContent = 'Login with email';
+            document.querySelector('.login-btn').onclick = toggleToLogin;
+        }
+
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = message;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        async function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const btn = document.getElementById('loginBtn');
+
+            btn.disabled = true;
+            btn.textContent = 'Logging in...';
+
+            try {
+                const userCredential = await window.signInWithEmailAndPassword(
+                    window.firebaseAuth, 
+                    email, 
+                    password
+                );
+                
+                showMessage('✅ Login successful! Welcome back!', 'success');
+                console.log('Logged in user:', userCredential.user);
+                
+                setTimeout(() => {
+                     window.location.href = '../index.html';
+                }, 1500);
+            } catch (error) {
+                console.error('Login error:', error);
+                showMessage('❌ ' + error.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Login';
+            }
+        }
+
+        async function handleSignup(event) {
+            event.preventDefault();
+            const name = document.getElementById('signup-name').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const btn = document.getElementById('signupBtn');
+
+            btn.disabled = true;
+            btn.textContent = 'Creating account...';
+
+            try {
+                const userCredential = await window.createUserWithEmailAndPassword(
+                    window.firebaseAuth,
+                    email,
+                    password
+                );
+                
+                showMessage('✅ Account created successfully! Welcome!', 'success');
+                console.log('New user:', userCredential.user);
+                
+                setTimeout(() => {
+                     window.location.href = '../index.html';
+                }, 1500);
+            } catch (error) {
+                console.error('Signup error:', error);
+                showMessage('❌ ' + error.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Register';
+            }
+        }
+
+        // 🔥 REAL GOOGLE SIGN-IN WITH POPUP
+        async function signInWithGoogle() {
+            const provider = new window.GoogleAuthProvider();
+            
+            provider.addScope('profile');
+            provider.addScope('email');
+
+            try {
+                const result = await window.signInWithPopup(window.firebaseAuth, provider);
+                
+                const user = result.user;
+                
+                console.log('🎉 Google Sign-In Success!');
+                console.log('User:', user);
+                console.log('Name:', user.displayName);
+                console.log('Email:', user.email);
+                console.log('Photo:', user.photoURL);
+                
+                showMessage(`✅ Welcome ${user.displayName}! Signed in with Google.`, 'success');
+                
+                setTimeout(() => {
+                    window.location.href = '../index.html';
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Google Sign-In Error:', error);
+                
+                if (error.code === 'auth/popup-closed-by-user') {
+                    showMessage('❌ Sign-in cancelled', 'error');
+                } else if (error.code === 'auth/popup-blocked') {
+                    showMessage('❌ Popup blocked. Please allow popups for this site.', 'error');
+                } else {
+                    showMessage('❌ ' + error.message, 'error');
+                }
+            }
+        }
+
+        // Monitor authentication state
+        if (window.firebaseAuth) {
+            window.firebaseAuth.onAuthStateChanged((user) => {
+                if (user) {
+                    console.log('✅ User is signed in:', user.email);
+                } else {
+                    console.log('❌ No user signed in');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1652 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedScan AI - Medicine Information Scanner</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --info-color: #3b82f6;
+            --success-color: #10b981;
+            --dark-color: #1f2937;
+            --light-color: #f9fafb;
+            --gray-color: #6b7280;
+            --border-color: #e5e7eb;
+            --card-bg: #ffffff;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --border-radius: 12px;
+            --border-radius-sm: 8px;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: var(--card-bg);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 1rem 0;
+        }
+
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--dark-color);
+        }
+
+        .logo i {
+            color: var(--primary-color);
+            font-size: 2rem;
+        }
+
+        .logo-highlight {
+            color: var(--primary-color);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--gray-color);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius-sm);
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .db-stats {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0.5rem 1rem;
+            background: var(--light-color);
+            border-radius: var(--border-radius-sm);
+            font-weight: 500;
+        }
+
+        .db-stats i {
+            color: var(--primary-color);
+        }
+
+        /* Dashboard Header */
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header-content h1 {
+            font-size: 2rem;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-content h1 i {
+            color: var(--primary-color);
+        }
+
+        .subtitle {
+            color: var(--gray-color);
+            font-size: 1.1rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* Main Content Layout */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            padding: 1.5rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header h2 {
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        /* Upload Area */
+        .upload-card {
+            margin-bottom: 2rem;
+        }
+
+        .upload-area {
+            text-align: center;
+            padding: 3rem 2rem;
+        }
+
+        .upload-illustration {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .upload-illustration i {
+            font-size: 4rem;
+            color: var(--primary-color);
+            z-index: 2;
+        }
+
+        .pulse-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(0.8);
+                opacity: 0.8;
+            }
+
+            100% {
+                transform: scale(1.4);
+                opacity: 0;
+            }
+        }
+
+        .upload-area h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--dark-color);
+        }
+
+        .upload-hint {
+            color: var(--gray-color);
+            margin-bottom: 2rem;
+        }
+
+        .upload-options {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius-sm);
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .btn-lg {
+            padding: 1rem 2rem;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #0da271;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--border-color);
+            color: var(--dark-color);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+
+        .upload-tips {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: var(--light-color);
+            border-radius: var(--border-radius-sm);
+        }
+
+        .tip {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: var(--gray-color);
+        }
+
+        .tip i {
+            color: var(--warning-color);
+        }
+
+        /* Preview Section */
+        .preview-section {
+            margin-top: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .section-header h3 {
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .image-container {
+            position: relative;
+            border-radius: var(--border-radius-sm);
+            overflow: hidden;
+            margin-bottom: 1rem;
+            background: var(--light-color);
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-container img {
+            width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+        }
+
+        .processing-indicator {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-color);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .extracted-text-section {
+            margin-top: 1.5rem;
+        }
+
+        .extracted-text-section h4 {
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .text-box {
+            background: var(--light-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            padding: 1rem;
+            min-height: 100px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: 'Roboto', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* Results Card */
+        .results-card {
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .medicine-header {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .medicine-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .medicine-icon i {
+            font-size: 2rem;
+            color: white;
+        }
+
+        .medicine-info h3 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .medicine-meta {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0.3rem 0.8rem;
+            background: var(--light-color);
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .meta-item i {
+            color: var(--primary-color);
+        }
+
+        /* Info Tabs */
+        .info-tabs {
+            margin-bottom: 2rem;
+        }
+
+        .tab-nav {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+
+        .tab-btn {
+            padding: 0.8rem 1.5rem;
+            background: var(--light-color);
+            border: none;
+            border-radius: var(--border-radius-sm);
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn:hover {
+            background: var(--border-color);
+        }
+
+        .tab-btn.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .tab-pane {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        .tab-pane h4 {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Info Grid for Uses */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 1rem;
+            background: var(--light-color);
+            border-radius: var(--border-radius-sm);
+        }
+
+        .info-item i {
+            color: var(--success-color);
+            margin-top: 2px;
+        }
+
+        /* Effects Grid */
+        .effects-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .effects-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .effects-category h5 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 0.8rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .text-warning {
+            color: var(--warning-color);
+        }
+
+        .text-danger {
+            color: var(--danger-color);
+        }
+
+        .effects-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .effects-list div {
+            padding: 0.5rem;
+            background: var(--light-color);
+            border-radius: 6px;
+            border-left: 3px solid currentColor;
+        }
+
+        /* Dosage Info */
+        .dosage-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .dosage-card {
+            background: var(--light-color);
+            border-radius: var(--border-radius-sm);
+            padding: 1rem;
+        }
+
+        .dosage-card h5 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 0.8rem;
+            color: var(--primary-color);
+        }
+
+        .dosage-detail {
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Precautions List */
+        .precautions-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .precautions-list div {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 0.8rem;
+            background: var(--light-color);
+            border-radius: var(--border-radius-sm);
+        }
+
+        .precautions-list i {
+            color: var(--warning-color);
+            margin-top: 2px;
+        }
+
+        /* Interactions List */
+        .interactions-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .interaction-item {
+            padding: 1rem;
+            background: var(--light-color);
+            border-radius: var(--border-radius-sm);
+            border-left: 4px solid var(--danger-color);
+        }
+
+        .interaction-name {
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+            color: var(--danger-color);
+        }
+
+        .interaction-effect {
+            font-size: 0.9rem;
+            color: var(--gray-color);
+        }
+
+        /* Additional Info */
+        .additional-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .additional-info {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .info-card {
+            background: var(--light-color);
+            border-radius: var(--border-radius-sm);
+            padding: 1.5rem;
+        }
+
+        .info-card h4 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .prescription-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .detail-label {
+            font-weight: 500;
+            color: var(--gray-color);
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .analysis-details {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .analysis-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .analysis-label {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .progress-bar {
+            flex: 2;
+            height: 8px;
+            background: var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: 4px;
+            transition: width 1s ease;
+        }
+
+        .analysis-value {
+            min-width: 60px;
+            text-align: right;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            padding-top: 1.5rem;
+            border-top: 2px solid var(--border-color);
+        }
+
+        /* Right Panel Cards */
+
+        .right-panel .card {
+            margin-bottom: 1.5rem;
+        }
+
+        .database-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--light-color);
+            border-radius: var(--border-radius-sm);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-icon i {
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark-color);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--gray-color);
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-color);
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.8rem 1rem 0.8rem 2.5rem;
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .quick-medicines h4 {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .medicine-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .medicine-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.8rem;
+            background: var(--light-color);
+            border-radius: var(--border-radius-sm);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .medicine-item:hover {
+            background: var(--border-color);
+            transform: translateX(5px);
+        }
+
+        .medicine-name {
+            font-weight: 500;
+        }
+
+        .medicine-type {
+            font-size: 0.8rem;
+            color: var(--gray-color);
+            padding: 0.2rem 0.5rem;
+            background: white;
+            border-radius: 12px;
+        }
+
+        .database-info {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: var(--light-color);
+            border-radius: var(--border-radius-sm);
+        }
+
+        .database-info p {
+            margin-bottom: 1rem;
+            color: var(--gray-color);
+        }
+
+        .info-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .info-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 0.3rem 0.8rem;
+            background: white;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            color: var(--gray-color);
+        }
+
+        /* History Card */
+        .history-list {
+            min-height: 200px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            color: var(--gray-color);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--border-color);
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .loading-content {
+            background: var(--card-bg);
+            padding: 3rem;
+            border-radius: var(--border-radius);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .scanning-animation {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 2rem;
+        }
+
+        .scanning-animation i {
+            font-size: 4rem;
+            color: var(--primary-color);
+        }
+
+        .scanner-beam {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+            animation: scan 2s linear infinite;
+        }
+
+        @keyframes scan {
+            0% {
+                top: 0;
+            }
+
+            50% {
+                top: 100%;
+            }
+
+            100% {
+                top: 0;
+            }
+        }
+
+        .loading-content h3 {
+            margin-bottom: 1rem;
+        }
+
+        .progress-container {
+            margin-top: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .progress-container .progress-bar {
+            flex: 1;
+        }
+
+        .progress-text {
+            min-width: 40px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--card-bg);
+            border-radius: var(--border-radius-sm);
+            box-shadow: var(--shadow-lg);
+            display: none;
+            z-index: 3000;
+            min-width: 300px;
+            overflow: hidden;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .toast-content {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            gap: 10px;
+        }
+
+        .toast-icon {
+            color: var(--success-color);
+            font-size: 1.5rem;
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 4000;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            max-width: 1000px;
+            width: 100%;
+            max-height: 80vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .modal-search {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-search input {
+            flex: 1;
+            padding: 0.8rem 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .medicine-database {
+            overflow-x: auto;
+        }
+
+        /* Match Badge */
+        .match-badge {
+            padding: 0.5rem 1.5rem;
+            border-radius: 20px;
+            font-weight: 600;
+            background: var(--light-color);
+            color: var(--gray-color);
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .navbar .container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-links {
+                width: 100%;
+                overflow-x: auto;
+                padding-bottom: 0.5rem;
+            }
+
+            .dashboard-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .upload-options {
+                flex-direction: column;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .medicine-meta {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .tab-nav {
+                flex-wrap: nowrap;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-prescription-bottle-alt"></i>
+                <span>MedScan <span class="logo-highlight">AI</span></span>
+            </div>
+            <div class="nav-links">
+                <a href="#scan" class="active"><i class="fas fa-camera"></i> Scan Medicine</a>
+                <a href="#database"><i class="fas fa-database"></i> Medicine Database</a>
+                <a href="#history"><i class="fas fa-history"></i> Scan History</a>
+                <a href="#info"><i class="fas fa-info-circle"></i> About</a>
+            </div>
+            <div class="user-menu">
+                <span class="db-stats" id="dbStats">
+                    <i class="fas fa-pills"></i>
+                    <span id="medicineCount">Loading...</span>
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container main-container">
+        <!-- Dashboard Header -->
+        <div class="dashboard-header">
+            <div class="header-content">
+                <h1><i class="fas fa-search-medical"></i> Scan Medicine & Get Complete Information</h1>
+                <p class="subtitle">Take a photo of medicine label to get usage, side effects, dosage, and more</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-secondary" id="viewDbBtn">
+                    <i class="fas fa-eye"></i> View All Medicines
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Left Panel - Upload & Results -->
+            <div class="left-panel">
+                <!-- Upload Card -->
+                <div class="card upload-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-camera"></i> Scan Medicine Label</h2>
+                        <div class="card-badge">Upload Image</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="upload-area" id="uploadArea">
+                            <div class="upload-illustration">
+                                <i class="fas fa-prescription-bottle-alt"></i>
+                                <div class="pulse-ring"></div>
+                            </div>
+                            <h3>Upload or Capture Medicine Image</h3>
+                            <p class="upload-hint">Take a clear photo of medicine name, composition or packaging</p>
+
+                            <div class="upload-options">
+                                <button class="btn btn-primary btn-lg" id="cameraBtn">
+                                    <i class="fas fa-camera"></i> Use Camera
+                                </button>
+                                <button class="btn btn-secondary btn-lg" id="browseBtn">
+                                    <i class="fas fa-folder-open"></i> Browse Files
+                                </button>
+                            </div>
+
+                            <input type="file" id="imageInput" accept="image/*,.pdf" capture="environment" hidden>
+
+                            <div class="upload-tips">
+                                <div class="tip">
+                                    <i class="fas fa-lightbulb"></i>
+                                    <span>Tip: Focus on medicine name for best results</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Image Preview -->
+                        <div class="preview-section" id="previewSection" style="display: none;">
+                            <div class="section-header">
+                                <h3><i class="fas fa-image"></i> Medicine Image</h3>
+                                <button class="btn btn-outline btn-sm" id="retakeBtn">
+                                    <i class="fas fa-redo"></i> Retake
+                                </button>
+                            </div>
+                            <div class="image-container">
+                                <img id="imagePreview" src="" alt="Medicine Preview">
+                                <div class="processing-indicator" id="processingIndicator">
+                                    <div class="spinner"></div>
+                                    <span>Extracting text from image...</span>
+                                </div>
+                            </div>
+                            <div class="extracted-text-section">
+                                <h4><i class="fas fa-text-height"></i> Extracted Text</h4>
+                                <div class="text-box" id="extractedText">
+                                    Text will appear here after processing...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results Card -->
+                <div class="card results-card" id="resultsCard" style="display: none;">
+                    <div class="card-header">
+                        <h2><i class="fas fa-clipboard-check"></i> Medicine Information</h2>
+                        <div class="match-badge" id="matchBadge">
+                            <span>Analyzing...</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- Medicine Details -->
+                        <div class="medicine-header" id="medicineHeader">
+                            <div class="medicine-icon">
+                                <i class="fas fa-pills"></i>
+                            </div>
+                            <div class="medicine-info">
+                                <h3 id="medicineName">Medicine Name</h3>
+                                <div class="medicine-meta">
+                                    <span class="meta-item" id="medicineType">
+                                        <i class="fas fa-tag"></i> <span>Type</span>
+                                    </span>
+                                    <span class="meta-item" id="medicineDosage">
+                                        <i class="fas fa-weight"></i> <span>Dosage</span>
+                                    </span>
+                                    <span class="meta-item" id="medicineManufacturer">
+                                        <i class="fas fa-industry"></i> <span>Manufacturer</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Information Tabs -->
+                        <div class="info-tabs">
+                            <div class="tab-nav">
+                                <button class="tab-btn active" data-tab="uses">
+                                    <i class="fas fa-stethoscope"></i> Uses
+                                </button>
+                                <button class="tab-btn" data-tab="side-effects">
+                                    <i class="fas fa-exclamation-triangle"></i> Side Effects
+                                </button>
+                                <button class="tab-btn" data-tab="dosage">
+                                    <i class="fas fa-calculator"></i> Dosage
+                                </button>
+                                <button class="tab-btn" data-tab="precautions">
+                                    <i class="fas fa-shield-alt"></i> Precautions
+                                </button>
+                                <button class="tab-btn" data-tab="interactions">
+                                    <i class="fas fa-exchange-alt"></i> Interactions
+                                </button>
+                            </div>
+
+                            <div class="tab-content">
+                                <!-- Uses Tab -->
+                                <div class="tab-pane active" id="usesTab">
+                                    <h4><i class="fas fa-stethoscope"></i> Medical Uses</h4>
+                                    <div class="info-grid" id="usesContent">
+                                        <div class="info-item">
+                                            <i class="fas fa-check-circle"></i>
+                                            <span>Loading uses information...</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Side Effects Tab -->
+                                <div class="tab-pane" id="sideEffectsTab">
+                                    <h4><i class="fas fa-exclamation-triangle"></i> Possible Side Effects</h4>
+                                    <div class="effects-grid">
+                                        <div class="effects-category">
+                                            <h5><i class="fas fa-exclamation-circle text-warning"></i> Common (1-10%)
+                                            </h5>
+                                            <div class="effects-list" id="commonEffects">
+                                                <!-- Common effects will be loaded here -->
+                                            </div>
+                                        </div>
+                                        <div class="effects-category">
+                                            <h5><i class="fas fa-exclamation-circle text-danger"></i> Serious (Contact
+                                                Doctor)</h5>
+                                            <div class="effects-list" id="seriousEffects">
+                                                <!-- Serious effects will be loaded here -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Dosage Tab -->
+                                <div class="tab-pane" id="dosageTab">
+                                    <h4><i class="fas fa-calculator"></i> Recommended Dosage</h4>
+                                    <div class="dosage-info">
+                                        <div class="dosage-card">
+                                            <h5><i class="fas fa-user"></i> Adult Dosage</h5>
+                                            <div class="dosage-detail" id="adultDosage">
+                                                <!-- Adult dosage info -->
+                                            </div>
+                                        </div>
+                                        <div class="dosage-card">
+                                            <h5><i class="fas fa-baby"></i> Pediatric Dosage</h5>
+                                            <div class="dosage-detail" id="pediatricDosage">
+                                                <!-- Pediatric dosage info -->
+                                            </div>
+                                        </div>
+                                        <div class="dosage-card">
+                                            <h5><i class="fas fa-clock"></i> Administration</h5>
+                                            <div class="dosage-detail" id="administrationInfo">
+                                                <!-- Administration info -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Precautions Tab -->
+                                <div class="tab-pane" id="precautionsTab">
+                                    <h4><i class="fas fa-shield-alt"></i> Precautions & Warnings</h4>
+                                    <div class="precautions-list" id="precautionsList">
+                                        <!-- Precautions will be loaded here -->
+                                    </div>
+                                </div>
+
+                                <!-- Interactions Tab -->
+                                <div class="tab-pane" id="interactionsTab">
+                                    <h4><i class="fas fa-exchange-alt"></i> Drug Interactions</h4>
+                                    <div class="interactions-list" id="interactionsList">
+                                        <!-- Interactions will be loaded here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Additional Information -->
+                        <div class="additional-info">
+                            <div class="info-card">
+                                <h4><i class="fas fa-prescription"></i> Prescription Information</h4>
+                                <div class="prescription-details">
+                                    <div class="detail-row">
+                                        <span class="detail-label">Prescription Required:</span>
+                                        <span class="detail-value" id="prescriptionRequired">Yes</span>
+                                    </div>
+                                    <div class="detail-row">
+                                        <span class="detail-label">Storage Conditions:</span>
+                                        <span class="detail-value" id="storageConditions">Room Temperature</span>
+                                    </div>
+                                    <div class="detail-row">
+                                        <span class="detail-label">Pregnancy Category:</span>
+                                        <span class="detail-value" id="pregnancyCategory">Category C</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="info-card">
+                                <h4><i class="fas fa-chart-line"></i> Match Analysis</h4>
+                                <div class="analysis-details">
+                                    <div class="analysis-item">
+                                        <div class="analysis-label">Confidence Score</div>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" id="confidenceBar" style="width: 0%"></div>
+                                        </div>
+                                        <div class="analysis-value" id="confidenceScore">0%</div>
+                                    </div>
+                                    <div class="analysis-item">
+                                        <div class="analysis-label">Database Match</div>
+                                        <div class="analysis-value" id="databaseMatch">No match found</div>
+                                    </div>
+                                    <div class="analysis-item">
+                                        <div class="analysis-label">Processing Time</div>
+                                        <div class="analysis-value" id="processingTime">0s</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="action-buttons">
+                            <button class="btn btn-outline" id="saveReportBtn">
+                                <i class="fas fa-download"></i> Save Report
+                            </button>
+                            <button class="btn btn-primary" id="newScanBtn">
+                                <i class="fas fa-plus"></i> New Scan
+                            </button>
+                            <button class="btn btn-secondary" id="printBtn">
+                                <i class="fas fa-print"></i> Print Information
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel - Database & Info -->
+            <div class="right-panel">
+                <!-- Database Info Card -->
+                <div class="card info-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-database"></i> Medicine Database</h2>
+                        <div class="card-badge" id="dbCount">Loading...</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="database-stats">
+                            <div class="stat">
+                                <div class="stat-icon">
+                                    <i class="fas fa-pills"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <div class="stat-value" id="totalMedicines">0</div>
+                                    <div class="stat-label">Total Medicines</div>
+                                </div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-icon">
+                                    <i class="fas fa-industry"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <div class="stat-value" id="totalManufacturers">0</div>
+                                    <div class="stat-label">Manufacturers</div>
+                                </div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-icon">
+                                    <i class="fas fa-tags"></i>
+                                </div>
+                                <div class="stat-content">
+                                    <div class="stat-value" id="medicineTypes">0</div>
+                                    <div class="stat-label">Medicine Types</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Search -->
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="medicineSearch" placeholder="Search medicine by name...">
+                        </div>
+
+                        <!-- Quick Medicine List -->
+                        <div class="quick-medicines">
+                            <h4><i class="fas fa-bolt"></i> Commonly Searched Medicines</h4>
+                            <div class="medicine-list" id="quickMedicineList">
+                                <!-- Common medicines will be loaded here -->
+                            </div>
+                        </div>
+
+                        <!-- Database Info -->
+                        <div class="database-info">
+                            <h4><i class="fas fa-info-circle"></i> About This Database</h4>
+                            <p>This system contains a comprehensive database of medicines with detailed information
+                                about uses, side effects, dosage, and precautions.</p>
+                            <div class="info-tags">
+                                <span class="info-tag"><i class="fas fa-check"></i> Verified Information</span>
+                                <span class="info-tag"><i class="fas fa-clock"></i> Updated Regularly</span>
+                                <span class="info-tag"><i class="fas fa-shield-alt"></i> Medical Accuracy</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Scans -->
+                <div class="card history-card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-history"></i> Recent Scans</h2>
+                        <div class="card-badge" id="scanCount">0</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="history-list" id="scanHistory">
+                            <div class="empty-state">
+                                <i class="fas fa-camera"></i>
+                                <p>No scans yet. Upload a medicine image to begin.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="scanning-animation">
+                <div class="scanner-beam"></div>
+                <i class="fas fa-prescription-bottle-alt"></i>
+            </div>
+            <h3>Analyzing Medicine Image</h3>
+            <p id="loadingMessage">Extracting text from medicine label...</p>
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="loadingProgress"></div>
+                </div>
+                <div class="progress-text" id="progressText">0%</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <div class="toast-content">
+            <i class="fas fa-check-circle toast-icon"></i>
+            <div class="toast-message" id="toastMessage"></div>
+        </div>
+    </div>
+
+    <!-- Medicine Database Modal -->
+    <div class="modal" id="databaseModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-database"></i> Complete Medicine Database</h3>
+                <button class="modal-close" id="closeModalBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-search">
+                    <input type="text" id="modalSearch" placeholder="Search medicines...">
+                    <button class="btn btn-primary">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                </div>
+                <div class="medicine-database" id="medicineDatabaseTable">
+                    <!-- Database will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/tesseract.js@5/dist/tesseract.min.js"></script>
+    <script src="{{ url_for('static', filename='script_verifier.js') }}"></script>
+
+   
+    <script src="/static/script_verifier.js"></script>
+</body>
+
+</html>

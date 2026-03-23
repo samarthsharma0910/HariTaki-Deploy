@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedTrack - Medicine Expiry Tracker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        /* Theme tokens */
+        :root {
+            --primary-color: #8b5cf6;
+            /* main purple */
+            --primary-dark: #6d28d9;
+            /* darker purple */
+            --primary-light: #ede9fe;
+            /* light purple */
+            --white: #ffffff;
+            --bg-soft: #f9fafb;
+            --gray: #e5e7eb;
+            --dark-gray: #6b7280;
+            --text-color: #111827;
+            --warning: #f5b74f;
+            --danger: #f25b5b;
+            --success: #22c55e;
+            --shadow-soft: 0 14px 30px rgba(15, 23, 42, 0.06);
+            --shadow-strong: 0 18px 40px rgba(88, 28, 135, 0.3);
+            --radius-lg: 20px;
+            --radius-md: 14px;
+        }
+
+        /* Base layout */
+        body {
+            background: radial-gradient(circle at top, #ede9fe 0%, #ffffff 40%, #ffffff 100%);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+
+        .container {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 20px 20px 44px;
+            /* a bit less top padding so it hugs the glow */
+        }
+
+
+        /* Header */
+        header {
+            width: 100%;
+            text-align: center;
+            padding: 40px 16px;
+            background: radial-gradient(circle at top, #a855f7 0%, #8b5cf6 40%, #6d28d9 100%);
+            color: var(--white);
+            border-radius: 0 0 32px 32px;
+            margin: 0 0 32px 0;
+            /* no side margins */
+            box-shadow: 0 40px 90px rgba(88, 28, 135, 0.6);
+            position: relative;
+            overflow: hidden;
+        }
+
+
+        header::before {
+            content: '';
+            position: absolute;
+            inset: -40%;
+            background:
+                radial-gradient(circle at 10% 0%, rgba(255, 255, 255, 0.28), transparent 60%),
+                radial-gradient(circle at 90% -10%, rgba(167, 139, 250, 0.4), transparent 65%);
+            opacity: 1;
+            pointer-events: none;
+        }
+
+        header::after {
+            content: '';
+            position: absolute;
+            bottom: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120%;
+            height: 120px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.6), transparent 70%);
+            opacity: 0.7;
+            /* purple glow spilling onto page */
+            pointer-events: none;
+        }
+
+
+        .logo {
+            font-size: 2.4rem;
+            margin-bottom: 6px;
+        }
+
+        header h1 {
+            font-size: 2.1rem;
+            margin-bottom: 4px;
+            letter-spacing: 0.02em;
+            font-weight: 600;
+        }
+
+        header p {
+            font-size: 0.98rem;
+            opacity: 0.9;
+            max-width: 620px;
+            margin: 4px auto 0;
+        }
+
+        /* Notification permission bar */
+        .notification-permission {
+            background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+            color: #4c1d95;
+            padding: 12px 18px;
+            border-radius: 18px;
+            margin: 18px auto 22px;
+            max-width: 800px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08);
+            border: 1px solid rgba(167, 139, 250, 0.4);
+        }
+
+        .notification-permission i {
+            margin-right: 8px;
+        }
+
+        .notification-permission button {
+            background: var(--white);
+            color: var(--primary-dark);
+            border: 1px solid rgba(148, 163, 184, 0.6);
+            padding: 8px 18px;
+            border-radius: 999px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .notification-permission button:hover {
+            background-color: var(--primary-light);
+            transform: translateY(-1px);
+        }
+
+        /* Stats */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 18px;
+            margin-top: 4px;
+        }
+
+        .stat-box {
+            background: var(--white);
+            border-radius: 18px;
+            padding: 16px 14px;
+            text-align: center;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid var(--gray);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 18px;
+            right: 18px;
+            height: 3px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #c4b5fd, #8b5cf6);
+        }
+
+        .stat-number {
+            font-size: 1.9rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 2px;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--dark-gray);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        /* Main grid */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 26px;
+            margin-top: 26px;
+        }
+
+        @media (min-width: 992px) {
+            .main-content {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* Panels */
+        .form-container,
+        .medicines-container {
+            background-color: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 22px 20px 24px;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid var(--gray);
+        }
+
+        /* Section titles */
+        .section-title {
+            color: var(--text-color);
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid var(--gray);
+        }
+
+        .section-title i {
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+
+        /* Form elements */
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: var(--dark-gray);
+            font-size: 0.94rem;
+        }
+
+        .form-group label i {
+            margin-right: 4px;
+            color: var(--primary-color);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 13px;
+            border: 1.5px solid var(--gray);
+            border-radius: 10px;
+            font-size: 0.96rem;
+            transition: all 0.2s ease;
+            background-color: #f9fafb;
+            color: var(--text-color);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.16);
+            background-color: #ffffff;
+        }
+
+        .date-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+            color: var(--white);
+            border: none;
+            padding: 12px 22px;
+            border-radius: 999px;
+            font-size: 0.98rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            box-shadow: 0 12px 24px rgba(88, 28, 135, 0.35);
+        }
+
+        .btn:hover {
+            background: linear-gradient(135deg, #7c3aed, #5b21b6);
+            transform: translateY(-2px);
+        }
+
+        .btn-block {
+            width: 100%;
+        }
+
+        .btn i {
+            margin-right: 8px;
+        }
+
+        /* Medicine cards */
+        .medicine-card {
+            background-color: var(--white);
+            border-radius: 16px;
+            padding: 16px 16px 14px;
+            margin-bottom: 14px;
+            box-shadow: var(--shadow-soft);
+            transition: all 0.2s ease;
+            position: relative;
+            border-left: 4px solid #c4b5fd;
+        }
+
+        .medicine-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 14px 30px rgba(15, 23, 42, 0.1);
+        }
+
+        .medicine-card.expiring-soon {
+            border-left-color: var(--warning);
+        }
+
+        .medicine-card.expired {
+            border-left-color: var(--danger);
+        }
+
+        .medicine-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+            margin-bottom: 2px;
+        }
+
+        .user-name {
+            font-size: 0.85rem;
+            color: var(--dark-gray);
+            margin-bottom: 10px;
+        }
+
+        .dates {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .date-item {
+            flex: 1;
+            min-width: 130px;
+        }
+
+        .date-label {
+            font-size: 0.78rem;
+            color: var(--dark-gray);
+            margin-bottom: 2px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .date-value {
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        /* Status pills */
+        .status {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 0.82rem;
+            font-weight: 600;
+        }
+
+        .status.active {
+            background-color: rgba(34, 197, 94, 0.14);
+            color: var(--success);
+        }
+
+        .status.expiring-soon {
+            background-color: rgba(245, 183, 79, 0.15);
+            color: #c78525;
+        }
+
+        .status.expired {
+            background-color: rgba(242, 91, 91, 0.16);
+            color: #d64545;
+        }
+
+        /* Delete button */
+        .delete-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: transparent;
+            border: none;
+            color: #9aa5c3;
+            cursor: pointer;
+            font-size: 1.05rem;
+            transition: all 0.2s ease;
+        }
+
+        .delete-btn:hover {
+            color: var(--danger);
+            transform: scale(1.1);
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 36px 18px;
+            color: var(--dark-gray);
+        }
+
+        .empty-state i {
+            font-size: 2.4rem;
+            margin-bottom: 10px;
+            color: #c4b5fd;
+        }
+
+        /* Toast notifications */
+        .notification-container {
+            position: fixed;
+            bottom: 18px;
+            right: 18px;
+            max-width: 340px;
+            z-index: 1000;
+        }
+
+        .notification {
+            background-color: var(--white);
+            border-radius: 14px;
+            padding: 12px 12px 12px 10px;
+            margin-bottom: 10px;
+            box-shadow: 0 12px 26px rgba(15, 23, 42, 0.18);
+            border-left: 4px solid var(--warning);
+            display: flex;
+            align-items: flex-start;
+            animation: slideIn 0.35s ease-out;
+        }
+
+        .notification.expired {
+            border-left-color: var(--danger);
+        }
+
+        .notification i {
+            font-size: 1.3rem;
+            color: var(--warning);
+            margin-right: 10px;
+            margin-top: 2px;
+        }
+
+        .notification.expired i {
+            color: var(--danger);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(40px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 26px 0 8px;
+            margin-top: 36px;
+            color: var(--dark-gray);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--gray);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.9rem;
+            }
+
+            .container {
+                padding: 20px 14px 30px;
+            }
+
+            .date-inputs {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .notification-container {
+                left: 12px;
+                right: 12px;
+                max-width: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+
+            .form-container,
+            .medicines-container {
+                padding: 18px 14px 20px;
+            }
+
+            .medicine-card {
+                padding: 14px 12px 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">
+            <i class="fas fa-pills"></i>
+        </div>
+        <h1>MedTrack - Medicine Expiry Tracker</h1>
+        <p>Track your medicine expiry dates and get notifications before they expire</p>
+    </header>
+    <div class="container">
+        <div class="notification-permission" id="notificationPermissionBanner" style="display: none;">
+            <div>
+                <i class="fas fa-bell"></i> Enable notifications to get alerts when medicines are about to expire
+            </div>
+            <button id="enableNotificationsBtn">Enable Notifications</button>
+        </div>
+
+        <div class="stats-container">
+            <div class="stat-box">
+                <div class="stat-number" id="totalMedicines">0</div>
+                <div class="stat-label">Total Medicines</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number" id="activeMedicines">0</div>
+                <div class="stat-label">Active</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number" id="expiringSoonMedicines">0</div>
+                <div class="stat-label">Expiring Soon</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number" id="expiredMedicines">0</div>
+                <div class="stat-label">Expired</div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="form-container">
+                <h2 class="section-title">
+                    <i class="fas fa-plus-circle"></i> Add New Medicine
+                </h2>
+                <form id="medicineForm">
+                    <div class="form-group">
+                        <label for="userName"><i class="fas fa-user"></i> User Name</label>
+                        <input type="text" id="userName" class="form-control" placeholder="Enter your name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="medicineName"><i class="fas fa-pills"></i> Medicine Name</label>
+                        <input type="text" id="medicineName" class="form-control" placeholder="Enter medicine name"
+                            required>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="date-inputs">
+                            <div>
+                                <label for="mfgDate"><i class="fas fa-calendar-alt"></i> Manufacturing Date</label>
+                                <input type="date" id="mfgDate" class="form-control" required>
+                            </div>
+                            <div>
+                                <label for="expiryDate"><i class="fas fa-calendar-times"></i> Expiry Date</label>
+                                <input type="date" id="expiryDate" class="form-control" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-block">
+                        <i class="fas fa-save"></i> Add Medicine
+                    </button>
+                </form>
+            </div>
+
+            <div class="medicines-container">
+                <h2 class="section-title">
+                    <i class="fas fa-list-ul"></i> Your Medicines
+                </h2>
+                <div id="medicinesList">
+                    <div class="empty-state" id="emptyState">
+                        <i class="fas fa-pills"></i>
+                        <h3>No Medicines Added</h3>
+                        <p>Add your first medicine using the form on the left</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="notification-container" id="notificationContainer">
+            <!-- Notifications will appear here -->
+        </div>
+
+        <footer>
+            <p>MedTrack &copy; <span id="currentYear"></span> | Keep your medicines safe and track expiry dates</p>
+            <p>All data is stored locally in your browser</p>
+        </footer>
+    </div>
+
+    <script>
+        // DOM Elements
+        const medicineForm = document.getElementById('medicineForm');
+        const medicinesList = document.getElementById('medicinesList');
+        const emptyState = document.getElementById('emptyState');
+        const notificationContainer = document.getElementById('notificationContainer');
+        const notificationPermissionBanner = document.getElementById('notificationPermissionBanner');
+        const enableNotificationsBtn = document.getElementById('enableNotificationsBtn');
+
+        // Stats elements
+        const totalMedicinesEl = document.getElementById('totalMedicines');
+        const activeMedicinesEl = document.getElementById('activeMedicines');
+        const expiringSoonMedicinesEl = document.getElementById('expiringSoonMedicines');
+        const expiredMedicinesEl = document.getElementById('expiredMedicines');
+
+        // Set current year in footer
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        // Set default dates to today and 1 year from today
+        const today = new Date();
+        const oneYearFromNow = new Date(today);
+        oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1);
+
+        document.getElementById('mfgDate').valueAsDate = today;
+        document.getElementById('expiryDate').valueAsDate = oneYearFromNow;
+
+        // Check if notifications are supported and permission is granted
+        function checkNotificationPermission() {
+            if ('Notification' in window) {
+                if (Notification.permission === 'default') {
+                    notificationPermissionBanner.style.display = 'flex';
+                }
+            }
+        }
+
+        // Request notification permission
+        enableNotificationsBtn.addEventListener('click', function () {
+            if ('Notification' in window) {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        notificationPermissionBanner.style.display = 'none';
+                        showNotification('Notifications enabled!', 'You will now receive alerts when medicines are about to expire.');
+                    }
+                });
+            }
+        });
+
+        // Load medicines from localStorage on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            loadMedicines();
+            checkNotificationPermission();
+            checkExpiringMedicines();
+
+            // Check for expiring medicines every hour
+            setInterval(checkExpiringMedicines, 60 * 60 * 1000);
+        });
+
+        // Medicine form submission
+        medicineForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const userName = document.getElementById('userName').value;
+            const medicineName = document.getElementById('medicineName').value;
+            const mfgDate = document.getElementById('mfgDate').value;
+            const expiryDate = document.getElementById('expiryDate').value;
+
+            // Validate dates
+            if (new Date(expiryDate) <= new Date(mfgDate)) {
+                alert('Expiry date must be after manufacturing date');
+                return;
+            }
+
+            if (new Date(expiryDate) <= new Date()) {
+                if (!confirm('This medicine has already expired. Are you sure you want to add it?')) {
+                    return;
+                }
+            }
+
+            // Create medicine object
+            const medicine = {
+                id: Date.now(), // Simple unique ID
+                userName: userName,
+                medicineName: medicineName,
+                mfgDate: mfgDate,
+                expiryDate: expiryDate,
+                addedDate: new Date().toISOString().split('T')[0]
+            };
+
+            // Save to localStorage
+            saveMedicine(medicine);
+
+            // Add to UI
+            addMedicineToUI(medicine);
+
+            // Reset form
+            medicineForm.reset();
+
+            // Set default dates again
+            document.getElementById('mfgDate').valueAsDate = today;
+            document.getElementById('expiryDate').valueAsDate = oneYearFromNow;
+
+            // Update stats
+            updateStats();
+
+            // Check if this medicine is expiring soon or expired
+            checkMedicineStatus(medicine);
+        });
+
+        // Save medicine to localStorage
+        function saveMedicine(medicine) {
+            let medicines = JSON.parse(localStorage.getItem('medicines')) || [];
+            medicines.push(medicine);
+            localStorage.setItem('medicines', JSON.stringify(medicines));
+        }
+
+        // Load medicines from localStorage
+        function loadMedicines() {
+            const medicines = JSON.parse(localStorage.getItem('medicines')) || [];
+
+            if (medicines.length > 0) {
+                emptyState.style.display = 'none';
+
+                // Sort medicines by expiry date (soonest first)
+                medicines.sort((a, b) => new Date(a.expiryDate) - new Date(b.expiryDate));
+
+                // Add each medicine to UI
+                medicines.forEach(medicine => {
+                    addMedicineToUI(medicine);
+                });
+            }
+
+            updateStats();
+        }
+
+        // Add medicine to UI
+        function addMedicineToUI(medicine) {
+            // Hide empty state if it's the first medicine
+            if (emptyState.style.display !== 'none') {
+                emptyState.style.display = 'none';
+            }
+
+            // Create medicine card
+            const medicineCard = document.createElement('div');
+            medicineCard.className = 'medicine-card';
+            medicineCard.dataset.id = medicine.id;
+
+            // Calculate days until expiry
+            const expiryDate = new Date(medicine.expiryDate);
+            const today = new Date();
+            const timeDiff = expiryDate.getTime() - today.getTime();
+            const daysUntilExpiry = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+            // Determine status
+            let statusText, statusClass;
+            if (daysUntilExpiry < 0) {
+                statusText = 'Expired';
+                statusClass = 'expired';
+                medicineCard.classList.add('expired');
+            } else if (daysUntilExpiry <= 30) {
+                statusText = 'Expiring Soon';
+                statusClass = 'expiring-soon';
+                medicineCard.classList.add('expiring-soon');
+            } else {
+                statusText = 'Active';
+                statusClass = 'active';
+            }
+
+            // Format dates for display
+            const formattedMfgDate = formatDate(medicine.mfgDate);
+            const formattedExpiryDate = formatDate(medicine.expiryDate);
+
+            medicineCard.innerHTML = `
+                <button class="delete-btn" onclick="deleteMedicine(${medicine.id})">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div class="medicine-name">${medicine.medicineName}</div>
+                <div class="user-name">Added by: ${medicine.userName}</div>
+                <div class="dates">
+                    <div class="date-item">
+                        <div class="date-label">Manufacturing Date</div>
+                        <div class="date-value">${formattedMfgDate}</div>
+                    </div>
+                    <div class="date-item">
+                        <div class="date-label">Expiry Date</div>
+                        <div class="date-value">${formattedExpiryDate}</div>
+                    </div>
+                    <div class="date-item">
+                        <div class="date-label">Days Until Expiry</div>
+                        <div class="date-value">${daysUntilExpiry < 0 ? Math.abs(daysUntilExpiry) + ' days ago' : daysUntilExpiry + ' days'}</div>
+                    </div>
+                </div>
+                <div class="status ${statusClass}">${statusText}</div>
+            `;
+
+            // Add to the beginning of the list (most recent first)
+            medicinesList.insertBefore(medicineCard, medicinesList.firstChild);
+        }
+
+        // Delete medicine
+        function deleteMedicine(id) {
+            if (!confirm('Are you sure you want to delete this medicine?')) {
+                return;
+            }
+
+            // Remove from localStorage
+            let medicines = JSON.parse(localStorage.getItem('medicines')) || [];
+            medicines = medicines.filter(medicine => medicine.id !== id);
+            localStorage.setItem('medicines', JSON.stringify(medicines));
+
+            // Remove from UI
+            const medicineCard = document.querySelector(`.medicine-card[data-id="${id}"]`);
+            if (medicineCard) {
+                medicineCard.remove();
+            }
+
+            // Show empty state if no medicines left
+            const remainingMedicines = document.querySelectorAll('.medicine-card').length;
+            if (remainingMedicines === 0) {
+                emptyState.style.display = 'block';
+            }
+
+            updateStats();
+        }
+
+        // Format date for display
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+
+        // Update statistics
+        function updateStats() {
+            const medicines = JSON.parse(localStorage.getItem('medicines')) || [];
+            const today = new Date();
+
+            let activeCount = 0;
+            let expiringSoonCount = 0;
+            let expiredCount = 0;
+
+            medicines.forEach(medicine => {
+                const expiryDate = new Date(medicine.expiryDate);
+                const timeDiff = expiryDate.getTime() - today.getTime();
+                const daysUntilExpiry = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+                if (daysUntilExpiry < 0) {
+                    expiredCount++;
+                } else if (daysUntilExpiry <= 30) {
+                    expiringSoonCount++;
+                } else {
+                    activeCount++;
+                }
+            });
+
+            totalMedicinesEl.textContent = medicines.length;
+            activeMedicinesEl.textContent = activeCount;
+            expiringSoonMedicinesEl.textContent = expiringSoonCount;
+            expiredMedicinesEl.textContent = expiredCount;
+        }
+
+        // Check for expiring medicines
+        function checkExpiringMedicines() {
+            const medicines = JSON.parse(localStorage.getItem('medicines')) || [];
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            medicines.forEach(medicine => {
+                checkMedicineStatus(medicine);
+            });
+        }
+
+        // Check individual medicine status and show notifications
+        function checkMedicineStatus(medicine) {
+            const expiryDate = new Date(medicine.expiryDate);
+            expiryDate.setHours(0, 0, 0, 0);
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            const timeDiff = expiryDate.getTime() - today.getTime();
+            const daysUntilExpiry = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+            // Show notification if medicine expires today or tomorrow
+            if (daysUntilExpiry === 0) {
+                showNotification(
+                    `Medicine Expires Today!`,
+                    `${medicine.medicineName} expires today. Please check and replace if needed.`,
+                    'expired'
+                );
+
+                // Also trigger desktop notification if permission is granted
+                if ('Notification' in window && Notification.permission === 'granted') {
+                    new Notification(`MedTrack: ${medicine.medicineName} Expires Today`, {
+                        body: `${medicine.medicineName} expires today. Please check and replace if needed.`,
+                        icon: 'https://cdn-icons-png.flaticon.com/512/2967/2967746.png'
+                    });
+                }
+            } else if (daysUntilExpiry === 1) {
+                showNotification(
+                    `Medicine Expires Tomorrow!`,
+                    `${medicine.medicineName} expires tomorrow. Please check and replace if needed.`
+                );
+
+                // Also trigger desktop notification if permission is granted
+                if ('Notification' in window && Notification.permission === 'granted') {
+                    new Notification(`MedTrack: ${medicine.medicineName} Expires Tomorrow`, {
+                        body: `${medicine.medicineName} expires tomorrow. Please check and replace if needed.`,
+                        icon: 'https://cdn-icons-png.flaticon.com/512/2967/2967746.png'
+                    });
+                }
+            } else if (daysUntilExpiry === 7) {
+                showNotification(
+                    `Medicine Expires in 7 Days!`,
+                    `${medicine.medicineName} expires in 7 days. Consider getting a replacement soon.`
+                );
+            }
+        }
+
+        // Show in-app notification
+        function showNotification(title, message, type = 'warning') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <i class="fas fa-exclamation-triangle"></i>
+                <div>
+                    <strong>${title}</strong>
+                    <p>${message}</p>
+                </div>
+            `;
+
+            notificationContainer.appendChild(notification);
+
+            // Remove notification after 10 seconds
+            setTimeout(() => {
+                notification.remove();
+            }, 10000);
+        }
+
+        // Make deleteMedicine function available globally
+        window.deleteMedicine = deleteMedicine;
+    </script>
+</body>
+
+</html>
